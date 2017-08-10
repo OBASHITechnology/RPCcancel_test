@@ -17,16 +17,17 @@ type SuccessIndicator struct {
 func main() {
 	for i := 0; i < 10; i++ {
 		// send request
+		r := &Request{Data: "Hello", ID: i}
 		// sleep 10 seconds
 		time.Sleep(time.Second * 10)
 		// if ID is even then FRAUD
-		if i%2 == 0 {
-			fmt.Println("Request", i, "is FRAUDULENT")
+		if IsFraudulent(r) {
+			fmt.Println("Request", r.ID, "is FRAUDULENT")
 		}
 	}
 }
 
-// CheckFraud will return true if a requests ID is even, otherwise false
-func CheckFraud(r Request) bool {
+// IsFraudulent will return true if a requests ID is even, otherwise false
+func IsFraudulent(r *Request) bool {
 	return r.ID%2 == 0
 }

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package protoTypes;
+
+message Request {
+    int32 id = 1;
+    string message = 2;
+}
+
+message SuccessIndicator {
+    bool success = 2;
+}
+
+service Fraudtest {
+    rpc TransferMessage(Request) returns (SuccessIndicator);
+}

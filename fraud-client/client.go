@@ -9,7 +9,11 @@ import (
 	"time"
 )
 
-const SleepTime = 1
+/**************************
+ * Command Line Arguments *
+ **************************/
+
+var sleepTime = 1
 
 var ip string
 
@@ -24,13 +28,17 @@ func main() {
 		r := &protoTypes.Request{Message: "Hello", Id: int32(i)}
 		go SendRequest(r, client)
 
-		time.Sleep(time.Second * SleepTime)
+		time.Sleep(time.Second * time.Duration(sleepTime))
 
 		if IsFraudulent(r) {
 			HandleFraudulent(r)
 		}
 	}
 }
+
+/*****************
+ * RPC Functions *
+ *****************/
 
 // IsFraudulent will return true if a requests ID is even, otherwise false
 func IsFraudulent(r *protoTypes.Request) bool {
@@ -55,12 +63,18 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) {
 
 }
 
+/*********************
+ * Utility Functions *
+ *********************/
+
 func parseArguments() {
 	ipFlag := flag.String("ip", "192.168.100.31:4455", "The IP address (and port) to forward messages to")
+	sleepFlag := flag.Int("sleep", 10, "The number of seconds to sleep between sending a request and checking if it is fraudulent")
 
 	flag.Parse()
 
 	ip = *ipFlag
+	sleepTime = *sleepFlag
 }
 
 func connectToRPCServer() protoTypes.FraudtestClient {

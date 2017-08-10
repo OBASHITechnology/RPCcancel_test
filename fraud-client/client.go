@@ -3,17 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/OBASHITechnology/RPCcancel_test/protobuf"
 	"time"
 )
-
-type Request struct {
-	Data string
-	ID   int
-}
-
-type SuccessIndicator struct {
-	Ok bool
-}
 
 const SleepTime = 1
 
@@ -25,26 +17,27 @@ func main() {
 
 	for i := 0; i < 10; i++ {
 		// Generate request
-		r := &Request{Data: "Hello", ID: i}
+		r := &protoTypes.Request{Message: "Hello", Id: int32(i)}
 
 		// send request
 		go SendRequest(r)
 
-		// sleep 10 seconds
+		// sleep for a while
 		time.Sleep(time.Second * SleepTime)
+
 		// if ID is even then FRAUD
 		if IsFraudulent(r) {
-			fmt.Println("Request", r.ID, "is FRAUDULENT")
+			fmt.Println("Request", r.Id, "is FRAUDULENT")
 		}
 	}
 }
 
 // IsFraudulent will return true if a requests ID is even, otherwise false
-func IsFraudulent(r *Request) bool {
-	return r.ID%2 == 0
+func IsFraudulent(r *protoTypes.Request) bool {
+	return r.Id%2 == 0
 }
 
-func SendRequest(r *Request) {
+func SendRequest(r *protoTypes.Request) {
 	fmt.Println("Sending", r, "to", ip)
 }
 

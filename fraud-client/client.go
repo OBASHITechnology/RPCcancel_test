@@ -9,45 +9,52 @@ import (
 	"time"
 )
 
-const SleepTime = 1
+/**************************
+ * Command Line Arguments *
+ **************************/
+
+var sleepTime = 1
 
 var ip string
 
 func main() {
 
 	parseArguments()
+	client := connectToRPCServer()
 
+	// Generate 10 requests and handle any fraudulent ones
 	for i := 0; i < 10; i++ {
-		// Generate request
+
 		r := &protoTypes.Request{Message: "Hello", Id: int32(i)}
+		ctx := SendRequest(r, client)
 
-		// send request
-		go SendRequest(r)
+		time.Sleep(time.Second * time.Duration(sleepTime))
 
-		// sleep for a while
-		time.Sleep(time.Second * SleepTime)
-
-		// if ID is even then FRAUD
 		if IsFraudulent(r) {
-			fmt.Println("Request", r.Id, "is FRAUDULENT")
+			HandleFraudulent(r, ctx)
 		}
 	}
 }
+
+/*****************
+ * RPC Functions *
+ *****************/
 
 // IsFraudulent will return true if a requests ID is even, otherwise false
 func IsFraudulent(r *protoTypes.Request) bool {
 	return r.Id%2 == 0
 }
 
-func SendRequest(r *protoTypes.Request) {
+func HandleFraudulent(r *protoTypes.Request, ctx context.Context) {
+	fmt.Println("Request", r.Id, "is FRAUDULENT")
+	ctx.Done()
+}
+
+func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) context.Context {
 	fmt.Println("Sending", r, "to", ip)
 
-	conn, err := grpc.Dial(ip, grpc.WithInsecure())
-	if err != nil {
-		panic(err)
-	}
-	client := protoTypes.NewFraudtestClient(conn)
-	success, err := client.TransferMessage(context.Background(), r)
+	ctx := context.Background()
+	success, err := client.TransferMessage(ctx, r)
 	if err != nil {
 		panic(err)
 	}
@@ -55,13 +62,29 @@ func SendRequest(r *protoTypes.Request) {
 	if !success.Success {
 		panic("Transfer Returned False for Request")
 	}
+	return ctx
 
 }
 
+/*********************
+ * Utility Functions *
+ *********************/
+
 func parseArguments() {
 	ipFlag := flag.String("ip", "0.0.0.0:4455", "The IP address (and port) to forward messages to")
+	sleepFlag := flag.Int("sleep", 10, "The number of seconds to sleep between sending a request and checking if it is fraudulent")
 
 	flag.Parse()
 
 	ip = *ipFlag
+	sleepTime = *sleepFlag
+}
+
+func connectToRPCServer() protoTypes.FraudtestClient {
+	conn, err := grpc.Dial(ip, grpc.WithInsecure())
+	if err != nil {
+		panic(err)
+	}
+
+	return protoTypes.NewFraudtestClient(conn)
 }

@@ -6,9 +6,9 @@ import (
 	"net"
 	"log"
 	"google.golang.org/grpc"
-	"context"
 	"google.golang.org/grpc/reflection"
 	"sync"
+	"golang.org/x/net/context"
 )
 
 /*
@@ -16,11 +16,6 @@ import (
 	Setup
 
  */
-
-// Variables we need to be global
-var (
-	acceptedMessages map[int32]string
-)
 
 // Variables we'll be configuring at argument parsing
 var (
@@ -51,6 +46,8 @@ func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.
 	if !success.Success {
 		log.Fatal("Transfer Returned False for Request")
 	}
+
+	return &protoTypes.SuccessIndicator{true}, nil
 }
 
 func main() {

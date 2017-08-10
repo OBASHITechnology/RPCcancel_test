@@ -16,20 +16,18 @@ var ip string
 func main() {
 
 	parseArguments()
+	client := connectToRPCServer()
 
+	// Generate 10 requests and handle any fraudulent ones
 	for i := 0; i < 10; i++ {
-		// Generate request
+
 		r := &protoTypes.Request{Message: "Hello", Id: int32(i)}
+		go SendRequest(r, client)
 
-		// send request
-		go SendRequest(r)
-
-		// sleep for a while
 		time.Sleep(time.Second * SleepTime)
 
-		// if ID is even then FRAUD
 		if IsFraudulent(r) {
-			fmt.Println("Request", r.Id, "is FRAUDULENT")
+			HandleFraudulent(r)
 		}
 	}
 }
@@ -39,14 +37,13 @@ func IsFraudulent(r *protoTypes.Request) bool {
 	return r.Id%2 == 0
 }
 
-func SendRequest(r *protoTypes.Request) {
+func HandleFraudulent(r *protoTypes.Request) {
+	fmt.Println("Request", r.Id, "is FRAUDULENT")
+}
+
+func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) {
 	fmt.Println("Sending", r, "to", ip)
 
-	conn, err := grpc.Dial(ip, grpc.WithInsecure())
-	if err != nil {
-		panic(err)
-	}
-	client := protoTypes.NewFraudtestClient(conn)
 	success, err := client.TransferMessage(context.Background(), r)
 	if err != nil {
 		panic(err)
@@ -64,4 +61,13 @@ func parseArguments() {
 	flag.Parse()
 
 	ip = *ipFlag
+}
+
+func connectToRPCServer() protoTypes.FraudtestClient {
+	conn, err := grpc.Dial(ip, grpc.WithInsecure())
+	if err != nil {
+		panic(err)
+	}
+
+	return protoTypes.NewFraudtestClient(conn)
 }

@@ -12,7 +12,7 @@ check:
 	-go vet
 
 static:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o $(EXE) $(ROOT)
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o $(EXE) 
 
 docker-image:
 	make static

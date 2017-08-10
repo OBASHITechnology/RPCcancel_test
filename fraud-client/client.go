@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"time"
 )
@@ -13,6 +14,8 @@ type Request struct {
 type SuccessIndicator struct {
 	Ok bool
 }
+
+var ip string
 
 func main() {
 	for i := 0; i < 10; i++ {
@@ -30,4 +33,12 @@ func main() {
 // IsFraudulent will return true if a requests ID is even, otherwise false
 func IsFraudulent(r *Request) bool {
 	return r.ID%2 == 0
+}
+
+func parseArguments() {
+	ipFlag := flag.String("ip", "192.168.100.31:4455", "The IP address (and port) to forward messages to")
+
+	flag.Parse()
+
+	ip = *ipFlag
 }

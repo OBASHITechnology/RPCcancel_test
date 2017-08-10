@@ -15,14 +15,23 @@ type SuccessIndicator struct {
 	Ok bool
 }
 
+const SleepTime = 1
+
 var ip string
 
 func main() {
+
+	parseArguments()
+
 	for i := 0; i < 10; i++ {
-		// send request
+		// Generate request
 		r := &Request{Data: "Hello", ID: i}
+
+		// send request
+		go SendRequest(r)
+
 		// sleep 10 seconds
-		time.Sleep(time.Second * 10)
+		time.Sleep(time.Second * SleepTime)
 		// if ID is even then FRAUD
 		if IsFraudulent(r) {
 			fmt.Println("Request", r.ID, "is FRAUDULENT")
@@ -33,6 +42,10 @@ func main() {
 // IsFraudulent will return true if a requests ID is even, otherwise false
 func IsFraudulent(r *Request) bool {
 	return r.ID%2 == 0
+}
+
+func SendRequest(r *Request) {
+	fmt.Println("Sending", r, "to", ip)
 }
 
 func parseArguments() {

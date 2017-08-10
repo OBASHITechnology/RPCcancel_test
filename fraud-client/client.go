@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/OBASHITechnology/RPCcancel_test/protobuf"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 	"time"
 )
 
@@ -39,6 +41,21 @@ func IsFraudulent(r *protoTypes.Request) bool {
 
 func SendRequest(r *protoTypes.Request) {
 	fmt.Println("Sending", r, "to", ip)
+
+	conn, err := grpc.Dial(ip, grpc.WithInsecure())
+	if err != nil {
+		panic(err)
+	}
+	client := protoTypes.NewFraudtestClient(conn)
+	success, err := client.TransferMessage(context.Background(), r)
+	if err != nil {
+		panic(err)
+	}
+
+	if !success.Success {
+		panic("Transfer Returned False for Request")
+	}
+
 }
 
 func parseArguments() {

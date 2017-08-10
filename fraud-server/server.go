@@ -6,11 +6,11 @@ import (
 	"net"
 	"log"
 	"google.golang.org/grpc"
-	"context"
 	"google.golang.org/grpc/reflection"
 	"net/http"
 	"strconv"
 	"sync"
+	"golang.org/x/net/context"
 )
 
 /*
@@ -21,7 +21,7 @@ import (
 
 // Variables we need to be global
 var (
-	acceptedMessages map[int32]string
+	acceptedMessages map[int32]string = make(map[int32]string)
 )
 
 // Variables we'll be configuring at argument parsing

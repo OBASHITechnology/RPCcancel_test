@@ -59,7 +59,7 @@ func SendRequest(r *protoTypes.Request) {
 }
 
 func parseArguments() {
-	ipFlag := flag.String("ip", "192.168.100.31:4455", "The IP address (and port) to forward messages to")
+	ipFlag := flag.String("ip", "0.0.0.0:4455", "The IP address (and port) to forward messages to")
 
 	flag.Parse()
 

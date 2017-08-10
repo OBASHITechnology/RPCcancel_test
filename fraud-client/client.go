@@ -26,12 +26,12 @@ func main() {
 	for i := 0; i < 10; i++ {
 
 		r := &protoTypes.Request{Message: "Hello", Id: int32(i)}
-		go SendRequest(r, client)
+		ctx := SendRequest(r, client)
 
 		time.Sleep(time.Second * time.Duration(sleepTime))
 
 		if IsFraudulent(r) {
-			HandleFraudulent(r)
+			HandleFraudulent(r, ctx)
 		}
 	}
 }
@@ -45,14 +45,16 @@ func IsFraudulent(r *protoTypes.Request) bool {
 	return r.Id%2 == 0
 }
 
-func HandleFraudulent(r *protoTypes.Request) {
+func HandleFraudulent(r *protoTypes.Request, ctx context.Context) {
 	fmt.Println("Request", r.Id, "is FRAUDULENT")
+	ctx.Done()
 }
 
-func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) {
+func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) context.Context {
 	fmt.Println("Sending", r, "to", ip)
 
-	success, err := client.TransferMessage(context.Background(), r)
+	ctx := context.Background()
+	success, err := client.TransferMessage(ctx, r)
 	if err != nil {
 		panic(err)
 	}
@@ -60,6 +62,7 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) {
 	if !success.Success {
 		panic("Transfer Returned False for Request")
 	}
+	return ctx
 
 }
 

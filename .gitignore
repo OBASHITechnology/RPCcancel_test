@@ -22,3 +22,8 @@ client
 
 # Project docker images
 client-image
+
+# Compiled binaries
+middleware/middleware
+fraud-client/fraud-client
+fraud-server/fraud-server

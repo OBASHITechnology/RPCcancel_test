@@ -8,6 +8,9 @@ import (
 	"google.golang.org/grpc"
 	"context"
 	"google.golang.org/grpc/reflection"
+	"net/http"
+	"strconv"
+	"sync"
 )
 
 /*
@@ -41,6 +44,15 @@ func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.
 	return &protoTypes.SuccessIndicator{Success:true}, nil
 }
 
+func serveMessages(res http.ResponseWriter, _ *http.Request) {
+	for id, message := range acceptedMessages {
+		res.Write([]byte(strconv.FormatInt(int64(id), 10)))
+		res.Write([]byte(": "))
+		res.Write([]byte(message))
+		res.Write([]byte("<br>"))
+	}
+}
+
 func main() {
 	// Configure from the commandline
 	parseArguments()
@@ -51,7 +63,10 @@ func main() {
 		err error
 		server *grpc.Server = grpc.NewServer()
 		messageAcc MessageAcceptor
+		wg sync.WaitGroup
 	)
+
+	wg.Add(2)
 
 	// Get a Listener on the required location, set up by parsing the arguments earlier
 	if lis, err = net.Listen("tcp", inboundLocation); err != nil {
@@ -63,9 +78,23 @@ func main() {
 	reflection.Register(server)
 
 	// Perform the serving!
-	if err := server.Serve(lis); err != nil {
-		log.Fatalf(err.Error())
-	}
+	go func() {
+		if err := server.Serve(lis); err != nil {
+			log.Fatalf(err.Error())
+			wg.Add(-1)
+		}
+	}()
+
+	// Now that we've got a goroutine running the gRPC server, let's also serve HTTP.
+	go func() {
+		http.HandleFunc("/", serveMessages)
+		if err := http.ListenAndServe(inspectionLocation, nil); err != nil {
+			log.Fatalf(err.Error())
+			wg.Add(-1)
+		}
+	}()
+
+	wg.Wait()
 }
 
 func parseArguments() {

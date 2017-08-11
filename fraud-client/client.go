@@ -13,13 +13,12 @@ import (
  * Command Line Arguments *
  **************************/
 
-var sleepTime = 1
-
-var oddTimeout = 30
-
-var evenTimeout = 60
-
-var ip string
+var (
+	sleepTime   int
+	oddTimeout  int
+	evenTimeout int
+	ip          string
+)
 
 func main() {
 

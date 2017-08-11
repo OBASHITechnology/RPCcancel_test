@@ -48,6 +48,7 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) bool 
 
 	// Set Timeout
 	ctx, cancel := CreateContextWithTimeout(r)
+	defer cancel()
 
 	rpcReturn := make(chan *protoTypes.SuccessIndicator)
 
@@ -65,7 +66,6 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) bool 
 		return success.Success
 	case <-ctx.Done():
 		fmt.Println("Timeout occurred!")
-		cancel()
 		return false
 	}
 

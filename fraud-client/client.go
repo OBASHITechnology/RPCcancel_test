@@ -100,7 +100,7 @@ func IsEven(r *protoTypes.Request) bool {
 
 func parseArguments() {
 	flag.StringVar(&outboundLocation, "outboundLocation", outboundLocation, "The IP address (and port) to forward messages to")
-	flag.IntVar(&sleepTime, "sleep", sleepTime, "The number of seconds to sleep between sending a request and checking if it is fraudulent")
+	flag.IntVar(&sleepTime, "sleepTime", sleepTime, "The number of seconds to sleep between sending a request and checking if it is fraudulent")
 	flag.IntVar(&evenTimeout, "evenTimeout", evenTimeout, "The number of seconds given to even requests to complete")
 	flag.IntVar(&oddTimeout, "oddTimeout", oddTimeout, "The number of seconds given to odd requests to complete")
 

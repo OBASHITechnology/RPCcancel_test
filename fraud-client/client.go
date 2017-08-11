@@ -73,22 +73,23 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) bool 
 // CreateContextWithTimeout will take a request, and return a context with a certain timeout, based on it's ID.
 // - If the ID of the request is even, then the timeout is set to the evenTimeout, specified via Command Line Arguments
 // - Likewise for an odd ID
-func CreateContextWithTimeout(r *protoTypes.Request) context.Context {
+func CreateContextWithTimeout(r *protoTypes.Request) (context.Context, context.CancelFunc) {
 	ctx := context.Background()
+	cancel := *new(context.CancelFunc)
 
 	if IsEven(r) {
 
 		fmt.Println("Request", r.Id, "timeout is", evenTimeout)
-		ctx, _ = context.WithTimeout(ctx, time.Duration(evenTimeout)*time.Second)
+		ctx, cancel = context.WithTimeout(ctx, time.Duration(evenTimeout)*time.Second)
 
 	} else {
 
 		fmt.Println("Request", r.Id, "timeout is", oddTimeout)
-		ctx, _ = context.WithTimeout(ctx, time.Duration(oddTimeout)*time.Second)
+		ctx, cancel = context.WithTimeout(ctx, time.Duration(oddTimeout)*time.Second)
 
 	}
 
-	return ctx
+	return ctx, cancel
 }
 
 func connectToRPCServer() protoTypes.FraudtestClient {

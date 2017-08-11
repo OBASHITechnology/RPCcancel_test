@@ -65,8 +65,7 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) bool 
 		return success.Success
 	case <-ctx.Done():
 		fmt.Println("Timeout occurred!")
-		// Do somewith with cancel
-		fmt.Println(cancel)
+		cancel()
 		return false
 	}
 

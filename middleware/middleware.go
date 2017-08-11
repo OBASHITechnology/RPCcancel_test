@@ -49,7 +49,7 @@ func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.
 	go func() {
 		success, err := client.TransferMessage(ctx, request)
 		if err != nil {
-			log.Fatal(err.Error())
+			fmt.Println("Error occurred when sending message", err)
 		}
 		rpcReturn <- success
 	}()

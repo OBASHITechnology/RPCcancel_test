@@ -51,6 +51,7 @@ func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.
 	// Make an asynchronous RPC call
 	rpcReturn := make(chan *protoTypes.SuccessIndicator)
 	if deadline, exists := ctx.Deadline(); exists && deadline.After(time.Now()) {
+		fmt.Println("Timeout found in pre-check function",exists)
 		return failureIndicator, timeoutError
 	}
 

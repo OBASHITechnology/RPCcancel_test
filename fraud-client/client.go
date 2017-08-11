@@ -11,10 +11,10 @@ import (
 
 // Command Line Arguments
 var (
-	sleepTime   int
-	oddTimeout  int
-	evenTimeout int
-	ip          string
+	sleepTime   int    = 10
+	oddTimeout  int    = 30
+	evenTimeout int    = 60
+	ip          string = "0.0.0.0:4454"
 )
 
 func main() {
@@ -91,17 +91,12 @@ func IsEven(r *protoTypes.Request) bool {
 }
 
 func parseArguments() {
-	ipFlag := flag.String("ip", "0.0.0.0:4454", "The IP address (and port) to forward messages to")
-	sleepFlag := flag.Int("sleep", 10, "The number of seconds to sleep between sending a request and checking if it is fraudulent")
-	evenFlag := flag.Int("even-timeout", 60, "The number of seconds given to even requests to complete")
-	oddFlag := flag.Int("odd-timeout", 30, "The number of seconds given to odd requests to complete")
+	flag.StringVar(&ip, "ip", ip, "The IP address (and port) to forward messages to")
+	flag.IntVar(&sleepTime, "sleep", sleepTime, "The number of seconds to sleep between sending a request and checking if it is fraudulent")
+	flag.IntVar(&evenTimeout, "even-timeout", evenTimeout, "The number of seconds given to even requests to complete")
+	flag.IntVar(&oddTimeout, "odd-timeout", oddTimeout, "The number of seconds given to odd requests to complete")
 
 	flag.Parse()
-
-	ip = *ipFlag
-	sleepTime = *sleepFlag
-	evenTimeout = *evenFlag
-	oddTimeout = *oddFlag
 }
 
 func connectToRPCServer() protoTypes.FraudtestClient {

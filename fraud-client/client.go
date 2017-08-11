@@ -47,7 +47,8 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) bool 
 	fmt.Println("Sending", r, "to", outboundLocation)
 
 	// Set Timeout
-	ctx := CreateContextWithTimeout(r)
+	ctx, cancel := CreateContextWithTimeout(r)
+	defer cancel()
 
 	rpcReturn := make(chan *protoTypes.SuccessIndicator)
 

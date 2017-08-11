@@ -19,6 +19,8 @@
 
 # Project binaries
 client
+server
+middleware
 
 # Project docker images
 client-image

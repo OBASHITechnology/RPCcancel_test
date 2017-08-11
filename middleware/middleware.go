@@ -1,14 +1,14 @@
 package main
 
 import (
-	protoTypes "github.com/OBASHITechnology/RPCcancel_test/protobuf"
 	"flag"
-	"net"
-	"log"
+	protoTypes "github.com/OBASHITechnology/RPCcancel_test/protobuf"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"log"
+	"net"
 	"sync"
-	"golang.org/x/net/context"
 	"time"
 	"rpcTesting/gRPC/client"
 	"errors"
@@ -18,11 +18,11 @@ import (
 
 	Setup
 
- */
+*/
 
 // Variables we'll be configuring at argument parsing
 var (
-	inboundLocation string = "0.0.0.0:4455"
+	inboundLocation  string = "0.0.0.0:4455"
 	outboundLocation string = "0.0.0.0:4455"
 	sleepLength int = 1 // Time to sleep in seconds
 )
@@ -30,12 +30,11 @@ var (
 // What we'll be serving on
 type MessageAcceptor bool
 
-
 /*
 
 	Functions and methods
 
- */
+*/
 func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.Request) (*protoTypes.SuccessIndicator, error) {
 	// Sleep a configurable length of time before processing the recieved message
 	time.Sleep(time.Duration(sleepLength) * time.Second)
@@ -71,11 +70,11 @@ func main() {
 
 	// Variables we'll use
 	var (
-		lis net.Listener
-		err error
-		server *grpc.Server = grpc.NewServer()
+		lis        net.Listener
+		err        error
+		server     *grpc.Server = grpc.NewServer()
 		messageAcc MessageAcceptor
-		wg sync.WaitGroup
+		wg         sync.WaitGroup
 	)
 
 	wg.Add(1)
@@ -106,4 +105,3 @@ func parseArguments() {
 	flag.IntVar(&sleepLength, "sleep", sleepLength, "Amount of time in seconds that the process will sleep for before processing a recieved message")
 	flag.Parse()
 }
-

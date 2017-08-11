@@ -15,6 +15,10 @@ import (
 
 var sleepTime = 1
 
+var oddTimeout = 30
+
+var evenTimeout = 60
+
 var ip string
 
 func main() {
@@ -26,13 +30,9 @@ func main() {
 	for i := 0; i < 10; i++ {
 
 		r := &protoTypes.Request{Message: "Hello", Id: int32(i)}
-		ctx := SendRequest(r, client)
+		SendRequest(r, client)
 
 		time.Sleep(time.Second * time.Duration(sleepTime))
-
-		if IsFraudulent(r) {
-			HandleFraudulent(r, ctx)
-		}
 	}
 }
 
@@ -40,20 +40,24 @@ func main() {
  * RPC Functions *
  *****************/
 
-// IsFraudulent will return true if a requests ID is even, otherwise false
-func IsFraudulent(r *protoTypes.Request) bool {
+// IsEven will return true if a requests ID is even, otherwise false
+func IsEven(r *protoTypes.Request) bool {
 	return r.Id%2 == 0
-}
-
-func HandleFraudulent(r *protoTypes.Request, ctx context.Context) {
-	fmt.Println("Request", r.Id, "is FRAUDULENT")
-	ctx.Done()
 }
 
 func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) context.Context {
 	fmt.Println("Sending", r, "to", ip)
 
+	// Set Timeout
 	ctx := context.Background()
+	if IsEven(r) {
+		fmt.Println("Request", r.Id, "timeout is", evenTimeout)
+		ctx.Deadline()
+	} else {
+		fmt.Println("Request", r.Id, "timeout is", oddTimeout)
+		ctx.Deadline()
+	}
+
 	success, err := client.TransferMessage(ctx, r)
 	if err != nil {
 		panic(err)
@@ -73,11 +77,15 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) conte
 func parseArguments() {
 	ipFlag := flag.String("ip", "0.0.0.0:4455", "The IP address (and port) to forward messages to")
 	sleepFlag := flag.Int("sleep", 10, "The number of seconds to sleep between sending a request and checking if it is fraudulent")
+	evenFlag := flag.Int("even-timeout", 60, "The number of seconds given to even requests to complete")
+	oddFlag := flag.Int("odd-timeout", 30, "The number of seconds given to odd requests to complete")
 
 	flag.Parse()
 
 	ip = *ipFlag
 	sleepTime = *sleepFlag
+	evenTimeout = *evenFlag
+	oddTimeout = *oddFlag
 }
 
 func connectToRPCServer() protoTypes.FraudtestClient {

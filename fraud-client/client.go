@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"github.com/OBASHITechnology/RPCcancel_test/protobuf"
@@ -31,8 +30,12 @@ func main() {
 	for i := 0; i < 10; i++ {
 
 		r := &protoTypes.Request{Message: "Hello", Id: int32(i)}
-		SendRequest(r, client)
-
+		success := SendRequest(r, client)
+		if success {
+			fmt.Println("SUCCESS")
+		} else {
+			fmt.Println("unsuccessful")
+		}
 		time.Sleep(time.Second * time.Duration(sleepTime))
 	}
 }
@@ -41,12 +44,8 @@ func main() {
  * RPC Functions *
  *****************/
 
-// IsEven will return true if a requests ID is even, otherwise false
-func IsEven(r *protoTypes.Request) bool {
-	return r.Id%2 == 0
-}
-
-func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) context.Context {
+// SendRequest will send a request to the specified client, and return whether it succeeded
+func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) bool {
 	fmt.Println("Sending", r, "to", ip)
 
 	// Set Timeout
@@ -72,26 +71,28 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) conte
 		if err != nil {
 			panic(err)
 		}
+		rpcReturn <- success
 	}()
-
-	if !success.Success {
-		panic("Transfer Returned False for Request")
-	}
 
 	select {
 	case success := <-rpcReturn:
 		fmt.Println("Call was successful!", success)
+		return success.Success
 	case <-ctx.Done():
-		panic(errors.New("Timeout occurred!"))
+		fmt.Println("Timeout occurred!")
+		return false
 	}
-
-	return ctx
 
 }
 
 /*********************
  * Utility Functions *
  *********************/
+
+// IsEven will return true if a requests ID is even, otherwise false
+func IsEven(r *protoTypes.Request) bool {
+	return r.Id%2 == 0
+}
 
 func parseArguments() {
 	ipFlag := flag.String("ip", "0.0.0.0:4454", "The IP address (and port) to forward messages to")

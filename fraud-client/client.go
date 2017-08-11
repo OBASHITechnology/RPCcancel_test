@@ -22,8 +22,18 @@ func main() {
 	parseArguments()
 	client := connectToRPCServer()
 
-	// Generate 10 requests and handle any fraudulent ones
-	for i := 0; i < 10; i++ {
+	// Generate and send a number of requests, waiting for a specified amount of time between each one
+	GenerateAndSendRequests(10, client)
+}
+
+/*****************
+ * RPC Functions *
+ *****************/
+
+// GenerateAndSendRequests will generate and send a specified number of requests. It will
+// wait a certain amount of time between each request, specified by the command line argument 'sleepTime'
+func GenerateAndSendRequests(n int, client protoTypes.FraudtestClient) {
+	for i := 0; i < n; i++ {
 
 		r := &protoTypes.Request{Message: "Hello", Id: int32(i)}
 		success := SendRequest(r, client)
@@ -35,10 +45,6 @@ func main() {
 		time.Sleep(time.Second * time.Duration(sleepTime))
 	}
 }
-
-/*****************
- * RPC Functions *
- *****************/
 
 // SendRequest will send a request to the specified client, and return whether it succeeded
 func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) bool {

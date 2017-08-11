@@ -12,7 +12,6 @@ import (
 	"net"
 	"sync"
 	"time"
-	"rpcTesting/gRPC/client"
 )
 
 /*
@@ -48,12 +47,6 @@ func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.
 		log.Fatal(err.Error())
 	}
 	client := protoTypes.NewFraudtestClient(conn)
-
-	// Check to see if the timeout has passed
-	deadline, ok := ctx.Deadline()
-	if !(ok && time.Now().Before(deadline)) {
-		return nil, errors.New("Timeout occurred before call!")
-	}
 
 	// Make an asynchronous RPC call
 	rpcReturn := make(chan *protoTypes.SuccessIndicator)

@@ -46,13 +46,13 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) bool 
 
 	// Set Timeout
 	ctx := CreateContextWithTimeout(r)
-	
+
 	rpcReturn := make(chan *protoTypes.SuccessIndicator)
 
 	go func() {
 		success, err := client.TransferMessage(ctx, r)
 		if err != nil {
-			panic(err)
+			fmt.Println("Error occurred when sending message")
 		}
 		rpcReturn <- success
 	}()
@@ -85,6 +85,7 @@ func CreateContextWithTimeout(r *protoTypes.Request) context.Context {
 
 	return ctx
 }
+
 /*********************
  * Utility Functions *
  *********************/

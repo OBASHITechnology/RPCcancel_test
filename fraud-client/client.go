@@ -75,7 +75,7 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) conte
  *********************/
 
 func parseArguments() {
-	ipFlag := flag.String("ip", "0.0.0.0:4455", "The IP address (and port) to forward messages to")
+	ipFlag := flag.String("ip", "0.0.0.0:4454", "The IP address (and port) to forward messages to")
 	sleepFlag := flag.Int("sleep", 10, "The number of seconds to sleep between sending a request and checking if it is fraudulent")
 	evenFlag := flag.Int("even-timeout", 60, "The number of seconds given to even requests to complete")
 	oddFlag := flag.Int("odd-timeout", 30, "The number of seconds given to odd requests to complete")

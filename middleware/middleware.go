@@ -12,6 +12,7 @@ import (
 	"net"
 	"sync"
 	"time"
+	"rpcTesting/gRPC/client"
 )
 
 /*
@@ -39,6 +40,9 @@ func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.
 	// Sleep a configurable length of time before processing the recieved message
 	time.Sleep(time.Duration(sleepLength) * time.Second)
 
+	// Creating these here as variables to clean up the later instances of timeout failure
+	failureIndicator, timeoutError := &protoTypes.SuccessIndicator{false}, errors.New("Timeout occurred!")
+
 	conn, err := grpc.Dial(outboundLocation, grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err.Error())
@@ -47,6 +51,10 @@ func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.
 
 	// Make an asynchronous RPC call
 	rpcReturn := make(chan *protoTypes.SuccessIndicator)
+	if <-ctx.Done(){
+		return failureIndicator, timeoutError
+	}
+
 	go func() {
 		success, err := client.TransferMessage(ctx, request)
 		if err != nil {
@@ -60,7 +68,7 @@ func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.
 	case success := <-rpcReturn:
 		return success, nil
 	case <-ctx.Done():
-		return &protoTypes.SuccessIndicator{false}, errors.New("Timeout occurred!")
+		return failureIndicator, timeoutError
 	}
 }
 

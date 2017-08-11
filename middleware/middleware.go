@@ -1,37 +1,36 @@
 package main
 
 import (
-	protoTypes "github.com/OBASHITechnology/RPCcancel_test/protobuf"
 	"flag"
-	"net"
-	"log"
+	protoTypes "github.com/OBASHITechnology/RPCcancel_test/protobuf"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"log"
+	"net"
 	"sync"
-	"golang.org/x/net/context"
 )
 
 /*
 
 	Setup
 
- */
+*/
 
 // Variables we'll be configuring at argument parsing
 var (
-	inboundLocation string = "0.0.0.0:4455"
+	inboundLocation  string = "0.0.0.0:4455"
 	outboundLocation string = "0.0.0.0:4455"
 )
 
 // What we'll be serving on
 type MessageAcceptor bool
 
-
 /*
 
 	Functions and methods
 
- */
+*/
 func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.Request) (*protoTypes.SuccessIndicator, error) {
 	conn, err := grpc.Dial(outboundLocation, grpc.WithInsecure())
 	if err != nil {
@@ -56,11 +55,11 @@ func main() {
 
 	// Variables we'll use
 	var (
-		lis net.Listener
-		err error
-		server *grpc.Server = grpc.NewServer()
+		lis        net.Listener
+		err        error
+		server     *grpc.Server = grpc.NewServer()
 		messageAcc MessageAcceptor
-		wg sync.WaitGroup
+		wg         sync.WaitGroup
 	)
 
 	wg.Add(1)
@@ -90,4 +89,3 @@ func parseArguments() {
 	flag.StringVar(&outboundLocation, "outLocation", outboundLocation, "The location which messages will be forwarded to.")
 	flag.Parse()
 }
-

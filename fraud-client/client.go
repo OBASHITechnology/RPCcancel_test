@@ -95,6 +95,14 @@ func CreateContextWithTimeout(r *protoTypes.Request) context.Context {
 	return ctx
 }
 
+func connectToRPCServer() protoTypes.FraudtestClient {
+	conn, err := grpc.Dial(outboundLocation, grpc.WithInsecure())
+	if err != nil {
+		panic(err)
+	}
+
+	return protoTypes.NewFraudtestClient(conn)
+}
 /*********************
  * Utility Functions *
  *********************/
@@ -111,13 +119,4 @@ func parseArguments() {
 	flag.IntVar(&oddTimeout, "oddTimeout", oddTimeout, "The number of seconds given to odd requests to complete")
 
 	flag.Parse()
-}
-
-func connectToRPCServer() protoTypes.FraudtestClient {
-	conn, err := grpc.Dial(outboundLocation, grpc.WithInsecure())
-	if err != nil {
-		panic(err)
-	}
-
-	return protoTypes.NewFraudtestClient(conn)
 }

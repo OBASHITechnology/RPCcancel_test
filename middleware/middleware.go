@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"flag"
+	"fmt"
 	protoTypes "github.com/OBASHITechnology/RPCcancel_test/protobuf"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -10,7 +12,6 @@ import (
 	"net"
 	"sync"
 	"time"
-	"errors"
 )
 
 /*
@@ -21,9 +22,9 @@ import (
 
 // Variables we'll be configuring at argument parsing
 var (
-	inboundLocation  string = "0.0.0.0:4455"
+	inboundLocation  string = "0.0.0.0:4454"
 	outboundLocation string = "0.0.0.0:4455"
-	sleepLength int = 1 // Time to sleep in seconds
+	sleepLength      int    = 1 // Time to sleep in seconds
 )
 
 // What we'll be serving on
@@ -56,9 +57,9 @@ func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.
 
 	// Check to see whether our async call returns before our context times out
 	select {
-	case success := <- rpcReturn:
+	case success := <-rpcReturn:
 		return success, nil
-	case <- ctx.Done():
+	case <-ctx.Done():
 		return &protoTypes.SuccessIndicator{false}, errors.New("Timeout occurred!")
 	}
 }

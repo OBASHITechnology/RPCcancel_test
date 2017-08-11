@@ -50,7 +50,7 @@ func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.
 
 	// Make an asynchronous RPC call
 	rpcReturn := make(chan *protoTypes.SuccessIndicator)
-	if <-ctx.Done(){
+	if deadline, exists := ctx.Deadline(); exists && deadline.After(time.Now()) {
 		return failureIndicator, timeoutError
 	}
 

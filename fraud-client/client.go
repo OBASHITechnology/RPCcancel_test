@@ -11,10 +11,10 @@ import (
 
 // Command Line Arguments
 var (
-	sleepTime   int    = 10
-	oddTimeout  int    = 30
-	evenTimeout int    = 60
-	ip          string = "0.0.0.0:4454"
+	sleepTime        int    = 10
+	oddTimeout       int    = 30
+	evenTimeout      int    = 60
+	outboundLocation string = "0.0.0.0:4454"
 )
 
 func main() {
@@ -42,7 +42,7 @@ func main() {
 
 // SendRequest will send a request to the specified client, and return whether it succeeded
 func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) bool {
-	fmt.Println("Sending", r, "to", ip)
+	fmt.Println("Sending", r, "to", outboundLocation)
 
 	// Set Timeout
 	ctx := CreateContextWithTimeout(r)
@@ -68,6 +68,9 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) bool 
 
 }
 
+// CreateContextWithTimeout will take a request, and return a context with a certain timeout, based on it's ID.
+// - If the ID of the request is even, then the timeout is set to the evenTimeout, specified via Command Line Arguments
+// - Likewise for an odd ID
 func CreateContextWithTimeout(r *protoTypes.Request) context.Context {
 	ctx := context.Background()
 
@@ -96,7 +99,7 @@ func IsEven(r *protoTypes.Request) bool {
 }
 
 func parseArguments() {
-	flag.StringVar(&ip, "ip", ip, "The IP address (and port) to forward messages to")
+	flag.StringVar(&outboundLocation, "outboundLocation", outboundLocation, "The IP address (and port) to forward messages to")
 	flag.IntVar(&sleepTime, "sleep", sleepTime, "The number of seconds to sleep between sending a request and checking if it is fraudulent")
 	flag.IntVar(&evenTimeout, "evenTimeout", evenTimeout, "The number of seconds given to even requests to complete")
 	flag.IntVar(&oddTimeout, "oddTimeout", oddTimeout, "The number of seconds given to odd requests to complete")
@@ -105,7 +108,7 @@ func parseArguments() {
 }
 
 func connectToRPCServer() protoTypes.FraudtestClient {
-	conn, err := grpc.Dial(ip, grpc.WithInsecure())
+	conn, err := grpc.Dial(outboundLocation, grpc.WithInsecure())
 	if err != nil {
 		panic(err)
 	}

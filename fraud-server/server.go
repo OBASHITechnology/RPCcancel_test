@@ -1,23 +1,23 @@
 package main
 
 import (
-	protoTypes "github.com/OBASHITechnology/RPCcancel_test/protobuf"
 	"flag"
-	"net"
-	"log"
+	protoTypes "github.com/OBASHITechnology/RPCcancel_test/protobuf"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"log"
+	"net"
 	"net/http"
 	"strconv"
 	"sync"
-	"golang.org/x/net/context"
 )
 
 /*
 
 	Setup
 
- */
+*/
 
 // Variables we need to be global
 var (
@@ -26,22 +26,21 @@ var (
 
 // Variables we'll be configuring at argument parsing
 var (
-	inboundLocation string = "0.0.0.0:4455"
+	inboundLocation    string = "0.0.0.0:4455"
 	inspectionLocation string = "0.0.0.0:8181"
 )
 
 // What we'll be serving on
 type MessageAcceptor bool
 
-
 /*
 
 	Functions and methods
 
- */
+*/
 func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.Request) (*protoTypes.SuccessIndicator, error) {
 	acceptedMessages[request.Id] = request.Message
-	return &protoTypes.SuccessIndicator{Success:true}, nil
+	return &protoTypes.SuccessIndicator{Success: true}, nil
 }
 
 func serveMessages(res http.ResponseWriter, _ *http.Request) {
@@ -49,7 +48,7 @@ func serveMessages(res http.ResponseWriter, _ *http.Request) {
 		res.Write([]byte(strconv.FormatInt(int64(id), 10)))
 		res.Write([]byte(": "))
 		res.Write([]byte(message))
-		res.Write([]byte("<br>"))
+		res.Write([]byte("\n"))
 	}
 }
 
@@ -59,11 +58,11 @@ func main() {
 
 	// Variables we'll use
 	var (
-		lis net.Listener
-		err error
-		server *grpc.Server = grpc.NewServer()
+		lis        net.Listener
+		err        error
+		server     *grpc.Server = grpc.NewServer()
 		messageAcc MessageAcceptor
-		wg sync.WaitGroup
+		wg         sync.WaitGroup
 	)
 
 	wg.Add(2)

@@ -9,10 +9,7 @@ import (
 	"time"
 )
 
-/**************************
- * Command Line Arguments *
- **************************/
-
+// Command Line Arguments
 var (
 	sleepTime   int
 	oddTimeout  int

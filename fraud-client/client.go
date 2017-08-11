@@ -33,17 +33,13 @@ func main() {
 // GenerateAndSendRequests will generate and send a specified number of requests. It will
 // wait a certain amount of time between each request, specified by the command line argument 'sleepTime'
 func GenerateAndSendRequests(n int, client protoTypes.FraudtestClient) {
-	for i := 0; i < n; i++ {
 
+	for i := 0; i < n; i++ {
 		r := &protoTypes.Request{Message: "Hello", Id: int32(i)}
-		success := SendRequest(r, client)
-		if success {
-			fmt.Println("SUCCESS")
-		} else {
-			fmt.Println("unsuccessful")
-		}
+		SendRequest(r, client)
 		time.Sleep(time.Second * time.Duration(sleepTime))
 	}
+
 }
 
 // SendRequest will send a request to the specified client, and return whether it succeeded
@@ -103,6 +99,7 @@ func connectToRPCServer() protoTypes.FraudtestClient {
 
 	return protoTypes.NewFraudtestClient(conn)
 }
+
 /*********************
  * Utility Functions *
  *********************/

@@ -10,7 +10,6 @@ import (
 	"net"
 	"sync"
 	"time"
-	"rpcTesting/gRPC/client"
 	"errors"
 )
 

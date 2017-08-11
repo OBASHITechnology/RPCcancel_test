@@ -55,7 +55,7 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) bool 
 	go func() {
 		success, err := client.TransferMessage(ctx, r)
 		if err != nil {
-			fmt.Println("Error occurred when sending message")
+			fmt.Println("Error occurred when sending message",err)
 		}
 		rpcReturn <- success
 	}()

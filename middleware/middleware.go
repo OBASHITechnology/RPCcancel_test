@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	"sync"
 	"golang.org/x/net/context"
+	"time"
 )
 
 /*
@@ -21,6 +22,7 @@ import (
 var (
 	inboundLocation string = "0.0.0.0:4455"
 	outboundLocation string = "0.0.0.0:4455"
+	sleepLength int = 1 // Time to sleep in seconds
 )
 
 // What we'll be serving on
@@ -33,10 +35,14 @@ type MessageAcceptor bool
 
  */
 func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.Request) (*protoTypes.SuccessIndicator, error) {
+	// Sleep a configurable length of time before processing the recieved message
+	time.Sleep(time.Duration(sleepLength) * time.Second)
+
 	conn, err := grpc.Dial(outboundLocation, grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+
 	client := protoTypes.NewFraudtestClient(conn)
 	success, err := client.TransferMessage(ctx, request)
 	if err != nil {
@@ -88,6 +94,7 @@ func main() {
 func parseArguments() {
 	flag.StringVar(&inboundLocation, "inLocation", inboundLocation, "The location where messages will be listened for on. Format IP:PORT")
 	flag.StringVar(&outboundLocation, "outLocation", outboundLocation, "The location which messages will be forwarded to.")
+	flag.IntVar(&sleepLength, "sleep", sleepLength, "Amount of time in seconds that the process will sleep for before processing a recieved message")
 	flag.Parse()
 }
 

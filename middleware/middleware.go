@@ -53,6 +53,7 @@ func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.
 	if deadline, exists := ctx.Deadline(); exists && deadline.After(time.Now()) {
 		fmt.Println("Timeout found in pre-check function",exists)
 		fmt.Println("Deadline == ",deadline)
+		fmt.Println("Time.Now == ",time.Now())
 		return failureIndicator, timeoutError
 	}
 

@@ -45,25 +45,12 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) bool 
 	fmt.Println("Sending", r, "to", ip)
 
 	// Set Timeout
-	ctx := context.Background()
-	if IsEven(r) {
-
-		fmt.Println("Request", r.Id, "timeout is", evenTimeout)
-		ctx, _ = context.WithTimeout(ctx, time.Duration(evenTimeout)*time.Second)
-
-	} else {
-
-		fmt.Println("Request", r.Id, "timeout is", oddTimeout)
-		ctx, _ = context.WithTimeout(ctx, time.Duration(oddTimeout)*time.Second)
-
-	}
-
-	success := new(protoTypes.SuccessIndicator)
-	var err error
+	ctx := CreateContextWithTimeout(r)
+	
 	rpcReturn := make(chan *protoTypes.SuccessIndicator)
 
 	go func() {
-		success, err = client.TransferMessage(ctx, r)
+		success, err := client.TransferMessage(ctx, r)
 		if err != nil {
 			panic(err)
 		}
@@ -81,6 +68,23 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) bool 
 
 }
 
+func CreateContextWithTimeout(r *protoTypes.Request) context.Context {
+	ctx := context.Background()
+
+	if IsEven(r) {
+
+		fmt.Println("Request", r.Id, "timeout is", evenTimeout)
+		ctx, _ = context.WithTimeout(ctx, time.Duration(evenTimeout)*time.Second)
+
+	} else {
+
+		fmt.Println("Request", r.Id, "timeout is", oddTimeout)
+		ctx, _ = context.WithTimeout(ctx, time.Duration(oddTimeout)*time.Second)
+
+	}
+
+	return ctx
+}
 /*********************
  * Utility Functions *
  *********************/

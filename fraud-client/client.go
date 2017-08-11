@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"github.com/OBASHITechnology/RPCcancel_test/protobuf"
@@ -58,14 +59,28 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) conte
 		ctx.Deadline()
 	}
 
-	success, err := client.TransferMessage(ctx, r)
-	if err != nil {
-		panic(err)
-	}
+	success := new(protoTypes.SuccessIndicator)
+	var err error
+	rpcReturn := make(chan *protoTypes.SuccessIndicator)
+
+	go func() {
+		success, err = client.TransferMessage(ctx, r)
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	if !success.Success {
 		panic("Transfer Returned False for Request")
 	}
+
+	select {
+	case success := <-rpcReturn:
+		fmt.Println("Call was successful!", success)
+	case <-ctx.Done():
+		panic(errors.New("Timeout occurred!"))
+	}
+
 	return ctx
 
 }

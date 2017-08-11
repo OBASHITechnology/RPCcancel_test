@@ -10,6 +10,7 @@ import (
 	"net"
 	"sync"
 	"time"
+	"errors"
 )
 
 /*
@@ -41,18 +42,25 @@ func (MessageAcceptor) TransferMessage(ctx context.Context, request *protoTypes.
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-
 	client := protoTypes.NewFraudtestClient(conn)
-	success, err := client.TransferMessage(ctx, request)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
 
-	if !success.Success {
-		log.Fatal("Transfer Returned False for Request")
-	}
+	// Make an asynchronous RPC call
+	rpcReturn := make(chan *protoTypes.SuccessIndicator)
+	go func() {
+		success, err := client.TransferMessage(ctx, request)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		rpcReturn <- success
+	}()
 
-	return &protoTypes.SuccessIndicator{true}, nil
+	// Check to see whether our async call returns before our context times out
+	select {
+	case success := <- rpcReturn:
+		return success, nil
+	case <- ctx.Done():
+		return &protoTypes.SuccessIndicator{false}, errors.New("Timeout occurred!")
+	}
 }
 
 func main() {

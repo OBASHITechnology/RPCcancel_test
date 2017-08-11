@@ -50,6 +50,7 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) conte
 	fmt.Println("Sending", r, "to", ip)
 
 	// Set Timeout
+	// TODO set timeout in context
 	ctx := context.Background()
 	if IsEven(r) {
 		fmt.Println("Request", r.Id, "timeout is", evenTimeout)

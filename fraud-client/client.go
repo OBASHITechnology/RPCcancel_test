@@ -55,7 +55,7 @@ func SendRequest(r *protoTypes.Request, client protoTypes.FraudtestClient) bool 
 	go func() {
 		success, err := client.TransferMessage(ctx, r)
 		if err != nil {
-			fmt.Println("Error occurred when sending message",err)
+			fmt.Println("Error occurred when sending message", err)
 		}
 		rpcReturn <- success
 	}()
@@ -89,7 +89,7 @@ func CreateContextWithTimeout(r *protoTypes.Request) (context.Context, context.C
 		ctx, cancel = context.WithTimeout(ctx, time.Duration(oddTimeout)*time.Second)
 
 	}
-	fmt.Println("Time.Now == ",time.Now())
+	fmt.Println("Time.Now == ", time.Now())
 	return ctx, cancel
 }
 
